@@ -333,6 +333,7 @@ int runProcessManager(int fileDescriptor) {
     //vector<PcbEntry> pcbTable; <--- I added this to a global variable at Line 63
     // Attempt to create the init process.
     if (!createProgram("init", pcbEntry[0].program)) {
+        
         return EXIT_FAILURE;
     }
     pcbEntry[0].processId = 0;
