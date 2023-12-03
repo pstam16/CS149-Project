@@ -16,7 +16,6 @@ using namespace std;
 
 // I added this trim function cause it was missing when I tried to run it
 string trim(const string& str) {
-    cout << "help";
    auto notSpace = [](unsigned char c){
         return !std::isspace(c);
    };
@@ -359,6 +358,8 @@ void quantum() {
          pcbEntry[runningState].timeUsed++;
     }
     schedule();
+
+    cout << endl<< "Enter Q, P, U or T" << endl;
 }
 
 // Implements the U command.
@@ -384,8 +385,9 @@ void print() { //Need to make a reporter process **********
     }else{
         cout << "The Process ID is: " << pcbEntry[runningState].processId << endl;
         cout << "The Parent Process ID is: " << pcbEntry[runningState].parentProcessId << endl;
+        cout << "The Value is: " << cpu.value << endl;
+	    cout << "CPU Program Counter: " << cpu.programCounter << endl;
         cout << "The Time Used is: " << pcbEntry[runningState].timeUsed << endl;
-        cout << "The Value is: " << pcbEntry[runningState].value << endl;
     }
 }
 
@@ -489,9 +491,9 @@ int main(int argc, char *argv[]) {
         // Close the unused read end of the pipe for the commander process.
         close(pipeDescriptors[0]);
         // Loop until a 'T' is written or until the pipe is broken.
+        cout << endl<< "Enter Q, P, U or T" << endl;
+        cout << "$ ";
         do {
-            cout << "Enter Q, P, U or T" << endl;
-            cout << "$ ";
             cin >> ch;
             // Pass commands to the process manager process via the pipe.
             if (write(pipeDescriptors[1], &ch, sizeof(ch)) != sizeof(ch)) {
