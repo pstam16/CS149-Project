@@ -237,7 +237,7 @@ void end() {   // We need to find a way to save the culmulative time to the proc
     // 1. Get the PCB entry of the running process.
     PcbEntry& runningProcess = pcbEntry[runningState]; //What to do with it
     // 2. Update the cumulative time difference (increment it by timestamp + 1 - start time of the process).
-    cumulativeTimeDiff += pcbEntry[runningState].timeUsed++;;
+    cumulativeTimeDiff += timestamp + 1 - runningProcess.startTime;
     // 3. Increment the number of terminated processes.
     ++numTerminatedProcesses;
     //Cleared the data in the PCB ******
