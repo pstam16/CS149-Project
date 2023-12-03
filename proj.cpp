@@ -156,21 +156,31 @@ bool createProgram(const string &filename, vector<Instruction> &program) {
 void set(int value) {
     // TODO: Implement
     // 1. Set the CPU value to the passed-in value.
+    cout<<"Before: "<< cpu.value<<endl;
     cpu.value = value;
+    cout<<"After: "<<cpu.value<<endl;
+    return;
+    
 }
 
 // Implements the A operation.
 void add(int value) {
     // TODO: Implement
     // 1. Add the passed-in value to the CPU value.
+    cout<<"Before: "<< cpu.value<<endl;
     cpu.value += value;
+    cout<<"After: "<<cpu.value<<endl;
+    return;
 }
 
 // Implements the D operation.
 void decrement(int value) {
     // TODO: Implement
     // 1. Subtract the integer value from the CPU value.
+    cout<<"Before: "<< cpu.value<<endl;
     cpu.value -= value;
+    cout<<"After: "<<cpu.value<<endl;
+    return;
 }
 
 
@@ -215,8 +225,10 @@ void block() {
     pcbEntry[runningState].programCounter = cpu.programCounter;
     // c. Store the CPU's value in the PCB's value.
     pcbEntry[runningState].value = cpu.value;
+        pcbEntry[runningState].timeUsed++; //Account for the E call with the ++
     // 3. Update the running state to -1 (basically mark no process as running). Note that a new process will be chosen to run later (via the Q command code calling the schedule() function).
     runningState = -1;
+    return;
 }
 
 //I think we're supposed to update the pcb as well *********
@@ -231,6 +243,7 @@ void end() {   // We need to find a way to save the culmulative time to the proc
     ++numTerminatedProcesses;
     //Cleared the data in the PCB ******
     //pcbEntry[runningProcess]=NULL;
+    pcbEntry[runningState].timeUsed++; //Account for the E call with the ++
     // 4. Update the running state to -1 (basically mark no process as running). Note that a new process will be chosen to run later (via the Q command code calling the schedule function).
     runningState = -1;
 }
@@ -243,7 +256,7 @@ void fork(int value) {
     // 2. Get the PCB entry for the current running process.
     PcbEntry& parentEntry = pcbEntry[runningState];
     // 3. Ensure the passed-in value is not out of bounds.
-    if (value < 0 || value >= parentEntry.program.size()-(parentEntry.programCounter+1)) { //consider the curr program counter could result in out of bounds ******
+    if (value < 0 || value >= parentEntry.program.size()-(parentEntry.programCounter)) { //consider the curr program counter could result in out of bounds ******
         cout << "Invalid fork value" << endl;
         return;
     }
@@ -254,7 +267,7 @@ void fork(int value) {
     // b. Set the parent process ID to the process ID of the running process (use the running process's PCB entry to get this).
     childEntry.parentProcessId = parentEntry.processId;
     // c. Set the program counter to the cpu program counter.
-    childEntry.programCounter = cpu.programCounter + 1; //Set it to the next one*******
+    childEntry.programCounter = cpu.programCounter; //Set it to the next one*******
     // d. Set the value to the cpu value.
     childEntry.value = cpu.value;
     // e. Set the priority to the same as the parent process's priority.
@@ -266,7 +279,9 @@ void fork(int value) {
     // 5. Add the pcb index to the ready queue.
     readyState.push_back(newProcessId);
     // 6. Increment the cpu's program counter by the value read in #3
-    cpu.programCounter += (value + 1); //++1 ********
+    childEntry.program=parentEntry.program;
+    childEntry.timeUsed=0;
+    cpu.programCounter += (value); //++1 ********
 }
 
 // Implements the R operation.   
@@ -275,10 +290,10 @@ void replace(string &argument) {
     // 1. Clear the CPU's program (cpu.pProgram->clear()).
     cpu.pProgram->clear();
     // 2. Use createProgram() to read in the filename specified by argument into the CPU (*cpu.pProgram)
-    if (!createProgram(argument, *cpu.pProgram)) {
+    if (!createProgram(argument, *cpu.pProgram)) { //handle the exception ******
     // a. Consider what to do if createProgram fails. I printed an error, incremented the cpu program counter and then returned. Note that createProgram can fail if the file could not be opened or did not exist.
         cout << "Failed to replace program from file: " << argument << endl;
-        ++cpu.programCounter;
+        //++cpu.programCounter;
         return;
     }
     // 3. Set the program counter to 0.
@@ -289,7 +304,7 @@ void replace(string &argument) {
 // Implements the Q command.
 void quantum() {
     Instruction instruction;
-    cout << "In quantum ";
+    cout << "In quantum: "<<endl;
     if (runningState == -1) {
         cout << "No processes are running" << endl;
         ++timestamp;
@@ -305,17 +320,17 @@ void quantum() {
     switch (instruction.operation) {
         case 'S': {
             set(stoi(instruction.stringArg));
-            cout << "instruction S " << instruction.intArg << endl;
+            cout << "instruction S " << stoi(instruction.stringArg) << endl;
             break;
         }
         case 'A':{
             add(stoi(instruction.stringArg));
-            cout << "instruction A " << instruction.intArg << endl;
+            cout << "instruction A " << stoi(instruction.stringArg) << endl;
             break;
         }
         case 'D':{
             decrement(stoi(instruction.stringArg));
-            cout << "instruction D " << instruction.intArg << endl;
+            cout << "instruction D " << stoi(instruction.stringArg) << endl;
             break;
         }
         case 'B':{
@@ -330,7 +345,7 @@ void quantum() {
         }
         case 'F':{
             fork(instruction.intArg);
-            cout << "instruction F " << instruction.intArg << endl;
+            cout << "instruction F " << stoi(instruction.stringArg) << endl;
             break;
         }
         case 'R':{
@@ -340,6 +355,9 @@ void quantum() {
         }
     }
     ++timestamp;
+    if(runningState!=-1){
+         pcbEntry[runningState].timeUsed++;
+    }
     schedule();
 }
 
@@ -367,7 +385,7 @@ void print() { //Need to make a reporter process **********
         cout << "The Process ID is: " << pcbEntry[runningState].processId << endl;
         cout << "The Parent Process ID is: " << pcbEntry[runningState].parentProcessId << endl;
         cout << "The Time Used is: " << pcbEntry[runningState].timeUsed << endl;
-        cout << "The Value is: " << pcbEntry[runningState].timeUsed << endl;
+        cout << "The Value is: " << pcbEntry[runningState].value << endl;
     }
 }
 
@@ -424,6 +442,10 @@ int runProcessManager(int fileDescriptor) {
                     _exit(-1);
                 }
                 if(processRtpPid == 0){
+                    if(runningState==-1){
+                        cout<<"Nothing Running"<<endl;
+                        _exit(-2);
+                    }
                     print();
                     _exit(1);
                 }

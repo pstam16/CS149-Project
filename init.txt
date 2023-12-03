@@ -1,0 +1,10 @@
+S 42
+A 8
+D 3
+B
+A 1
+A 1
+D 1
+R second.txt
+A 10
+E
