@@ -14,7 +14,7 @@
 using namespace std;
 #define SIZE 500
 
-// Trim function to remove leading and trailing white spaces from a  string
+// Trim function to remove leading and trailing white spaces from a string
 string trim(const string& str) {
     //Returns true if no white space
     auto notSpace = [](unsigned char c){
@@ -301,7 +301,7 @@ void replace(string &argument) {
         pcbEntry[runningState].startTime = timestamp + 1; //+1 to account for R increasing the timestamp
     }
 
-    // Reset the timeUsed  of currently running process
+    // Reset the timeUsed of currently running process
     pcbEntry[runningState].timeUsed = 0;
 }
 
