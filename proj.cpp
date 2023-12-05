@@ -290,17 +290,19 @@ void replace(string &argument) {
     if (!createProgram(argument, *cpu.pProgram)) { //handle the exception ******
     // a. Consider what to do if createProgram fails. I printed an error, incremented the cpu program counter and then returned. Note that createProgram can fail if the file could not be opened or did not exist.
         cout << "Failed to replace program from file: " << argument << endl;
-        //++cpu.programCounter;
         return;
     }
     // 3. Set the program counter to 0.
     cpu.programCounter = 0;
-    cpu.value=0; //int value needs to be undefined **********
+    cpu.value = 0; //int value needs to be undefined **********
 
     // Update the startTime of currently running process
     if (runningState != -1) {
         pcbEntry[runningState].startTime = timestamp + 1; //+1 to account for R increasing the timestamp
     }
+
+    // Reset the timeUsed  of currently running process
+    pcbEntry[runningState].timeUsed = 0;
 }
 
 // Implements the Q command.
@@ -396,7 +398,8 @@ void print() { // Prints information to simulate a reporter process
         cout << "The Value is: " << cpu.value << endl;
 	    cout << "CPU Program Counter: " << cpu.programCounter << endl;
         cout << "Process Start Time: " << pcbEntry[runningState].startTime << endl;
-        cout << "The Time Used is: " << pcbEntry[runningState].timeUsed << endl;
+        cout << "Time Used By Process: " << pcbEntry[runningState].timeUsed << endl;
+        cout << "Timestamp: " << timestamp << endl;
     }
 }
 
