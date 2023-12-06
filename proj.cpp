@@ -237,7 +237,7 @@ void end() {   // We need to find a way to save the culmulative time to the proc
     // 1. Get the PCB entry of the running process.
     PcbEntry& runningProcess = pcbEntry[runningState]; //What to do with it
     // 2. Update the cumulative time difference (increment it by timestamp + 1 - start time of the process).
-    cumulativeTimeDiff += timestamp + 1 - runningProcess.startTime;
+    cumulativeTimeDiff += pcbEntry[runningState].timeUsed + 1 - pcbEntry[runningState].startTime; 
     // 3. Increment the number of terminated processes.
     ++numTerminatedProcesses;
     //Cleared the data in the PCB ******
@@ -277,8 +277,9 @@ void fork(int value) {
     // 5. Add the pcb index to the ready queue.
     readyState.push_back(newProcessId);
     // 6. Increment the cpu's program counter by the value read in #3
-    childEntry.program=parentEntry.program;
-    childEntry.timeUsed=0;
+    childEntry.program = parentEntry.program;
+    // Copy timeUsed and value
+    childEntry.timeUsed = parentEntry.timeUsed + 1;
     cpu.programCounter += (value); // ++1
 }
 
@@ -409,6 +410,7 @@ void term(){
     if (numTerminatedProcesses > 0) {
         avgTurnaroundTime = cumulativeTimeDiff / numTerminatedProcesses;
         cout << "Average Turnaround Time: " << avgTurnaroundTime << endl;
+        cout << "Average Turnaround Time = " << cumulativeTimeDiff << " / " << numTerminatedProcesses << endl;
     } else {
         // Cannot print average turnaround time if no processes have finished
         cout << "No processes have terminated yet." << endl;
