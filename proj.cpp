@@ -237,7 +237,7 @@ void end() {   // We need to find a way to save the culmulative time to the proc
     // 1. Get the PCB entry of the running process.
     PcbEntry& runningProcess = pcbEntry[runningState]; //What to do with it
     // 2. Update the cumulative time difference (increment it by timestamp + 1 - start time of the process).
-    cumulativeTimeDiff += pcbEntry[runningState].timeUsed + 1 - pcbEntry[runningState].startTime; 
+    cumulativeTimeDiff += pcbEntry[runningState].timeUsed + 1;
     // 3. Increment the number of terminated processes.
     ++numTerminatedProcesses;
     //Cleared the data in the PCB ******
@@ -279,7 +279,7 @@ void fork(int value) {
     // 6. Increment the cpu's program counter by the value read in #3
     childEntry.program = parentEntry.program;
     // Copy timeUsed and value
-    childEntry.timeUsed = parentEntry.timeUsed + 1;
+    childEntry.timeUsed = 0;
     cpu.programCounter += (value); // ++1
 }
 
@@ -303,7 +303,7 @@ void replace(string &argument) {
     }
 
     // Reset the timeUsed of currently running process
-    pcbEntry[runningState].timeUsed = 0;
+    pcbEntry[runningState].timeUsed = -1; // factors in the ++
 }
 
 // Implements the Q command.
@@ -313,7 +313,6 @@ void quantum() {
     // Check if there's a running process
     if (runningState == -1) {
         cout << "No processes are running" << endl;
-        timestamp++;
         return;
     }
     // Check if the program counter is within bounds
@@ -399,7 +398,6 @@ void print() { // Prints information to simulate a reporter process
         cout << "The Value is: " << cpu.value << endl;
 	    cout << "CPU Program Counter: " << cpu.programCounter << endl;
         cout << "Process Start Time: " << pcbEntry[runningState].startTime << endl;
-        cout << "Time Used By Process: " << pcbEntry[runningState].timeUsed << endl;
         cout << "Timestamp: " << timestamp << endl;
     }
 }
