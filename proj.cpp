@@ -254,7 +254,7 @@ void fork(int value) {
     // 2. Get the PCB entry for the current running process.
     PcbEntry& parentEntry = pcbEntry[runningState];
     // 3. Ensure the passed-in value is not out of bounds.
-    if (value < 0 || value >= parentEntry.program.size()-(parentEntry.programCounter)) { //consider the curr program counter could result in out of bounds ******
+    if (value < 0 || value >= parentEntry.program.size()-(parentEntry.programCounter-1)) { //consider the curr program counter could result in out of bounds ******
         cout << "Invalid fork value" << endl;
         return;
     }
