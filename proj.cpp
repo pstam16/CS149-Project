@@ -410,7 +410,6 @@ void term(){
     if (numTerminatedProcesses > 0) {
         avgTurnaroundTime = cumulativeTimeDiff / numTerminatedProcesses;
         cout << "Average Turnaround Time: " << avgTurnaroundTime << endl;
-        cout << "Average Turnaround Time = " << cumulativeTimeDiff << " / " << numTerminatedProcesses << endl;
     } else {
         // Cannot print average turnaround time if no processes have finished
         cout << "No processes have terminated yet." << endl;
