@@ -237,7 +237,7 @@ void end() {   // We need to find a way to save the culmulative time to the proc
     // 1. Get the PCB entry of the running process.
     PcbEntry& runningProcess = pcbEntry[runningState]; //What to do with it
     // 2. Update the cumulative time difference (increment it by timestamp + 1 - start time of the process).
-    cumulativeTimeDiff += pcbEntry[runningState].timeUsed + 1;
+    cumulativeTimeDiff += timestamp + 1 - runningProcess.startTime;
     // 3. Increment the number of terminated processes.
     ++numTerminatedProcesses;
     //Cleared the data in the PCB ******
@@ -273,7 +273,7 @@ void fork(int value) {
     // f. Set the state to the ready state.
     childEntry.state = STATE_READY;
     // g. Set the start time to the current timestamp
-    childEntry.startTime = timestamp;
+    childEntry.startTime = timestamp+1;
     // 5. Add the pcb index to the ready queue.
     readyState.push_back(newProcessId);
     // 6. Increment the cpu's program counter by the value read in #3
@@ -296,14 +296,6 @@ void replace(string &argument) {
     // 3. Set the program counter to 0.
     cpu.programCounter = 0;
     cpu.value = 0; //int value needs to be undefined **********
-
-    // Update the startTime of currently running process
-    if (runningState != -1) {
-        pcbEntry[runningState].startTime = timestamp + 1; //+1 to account for R increasing the timestamp
-    }
-
-    // Reset the timeUsed of currently running process
-    pcbEntry[runningState].timeUsed = -1; // factors in the ++
 }
 
 // Implements the Q command.
